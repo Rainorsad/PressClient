@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">PressCLient</string>
+    <string name="text">我已经阅读了《网络协议》并遵守国际条约法则</string>
+    <string name="gl_wait">请稍等</string>
+</resources>
