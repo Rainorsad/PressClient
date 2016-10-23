@@ -2,6 +2,8 @@ package com.example.yao.pressclient.activity;
 
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
+import android.content.Intent;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.design.widget.TextInputLayout;
@@ -626,5 +628,10 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
                 popupWindow.dismiss();
             }
         });
+    }
+
+    @Override
+    public void startActivityForResult(Intent intent, int requestCode, Bundle options) {
+        super.startActivityForResult(intent, requestCode, options);
     }
 }

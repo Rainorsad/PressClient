@@ -15,7 +15,11 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -33,7 +37,6 @@ import com.example.yao.pressclient.utils.MyRecycleviewItemStyle;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.jude.rollviewpager.adapter.StaticPagerAdapter;
-import com.lidroid.xutils.HttpUtils;
 import com.lidroid.xutils.http.RequestParams;
 
 import java.lang.reflect.Type;
@@ -46,13 +49,18 @@ import java.util.List;
  * Created by Yao on 2016/9/20.
  */
 public class PressFragment extends Fragment {
-    private HttpUtils httpUtils;
+
     private RecyclerView recyclerView;
     public List<ModelBean> modelBeen;
-    private ImageView img;
+    private ImageView img,imgpoint;
     private int index=0;//0是从左往右，1是从右往左;
 //    private RollPagerView roll; //轮播组件
     private ViewPager vp;
+    private RelativeLayout rela;
+    private LinearLayout lin;
+
+    private List<View> vs;
+    private int width;
 
 
     @Override
@@ -69,13 +77,12 @@ public class PressFragment extends Fragment {
         img = (ImageView) view.findViewById(R.id.recycleview_img);
 //        roll = (RollPagerView) view.findViewById(R.id.roll);
         vp = (ViewPager) view.findViewById(R.id.recycleview_view);
-        vp.setVisibility(View.VISIBLE);
+        rela = (RelativeLayout) view.findViewById(R.id.recycleview_rela);
+        lin = (LinearLayout) view.findViewById(R.id.recycleview_lin);
+        imgpoint = (ImageView) view.findViewById(R.id.recycleview_v);
+        rela.setVisibility(View.VISIBLE);
 
-
-        //设置轮播控件的属性
-//        roll.setPlayDelay(3000);
-//        roll.setAnimationDurtion(500);//设置透明度
-//        roll.setVisibility(View.VISIBLE);
+        setRoll();
 
         //recycleview设置分割线风格
         MyRecycleviewItemStyle m = new MyRecycleviewItemStyle(MyRecycleviewItemStyle.VERTICAL);
@@ -87,6 +94,32 @@ public class PressFragment extends Fragment {
         modelBeen = new ArrayList<>();
 
         return view;
+    }
+
+    /**
+     * 轮播圆点加载
+     */
+    private void setRoll() {
+        vs = new ArrayList<>();
+        LayoutInflater inflater = getActivity().getLayoutInflater();
+       for (int i=0;i<5;i++){
+           View point = new View(getActivity());
+           point.setBackgroundResource(R.drawable.shape_point_gray);
+           LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(30,30);
+           if (i>0){
+               layoutParams.leftMargin = 20;
+           }
+           point.setLayoutParams(layoutParams);
+           lin.addView(point);
+       }
+        lin.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                lin.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                width = lin.getChildAt(1).getLeft() - lin.getChildAt(0).getLeft();
+            }
+        });
+        vp.addOnPageChangeListener(new listener());
     }
 
     @Override
@@ -195,6 +228,8 @@ public class PressFragment extends Fragment {
                 Intent it = new Intent(getActivity(), PressShowActivity.class);
                 it.putExtra("gson", s);
                 startActivity(it);
+
+
             }
         });
     }
@@ -265,6 +300,48 @@ public class PressFragment extends Fragment {
         @Override
         public void destroyItem(ViewGroup container, int position, Object object) {
            container.removeView((View) object);
+        }
+    }
+
+    class listener implements ViewPager.OnPageChangeListener{
+        @Override
+        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+            int len = (int) (positionOffset * width + position * width);
+            RelativeLayout.LayoutParams pa = (RelativeLayout.LayoutParams) imgpoint.getLayoutParams();
+            pa.leftMargin = len;
+            imgpoint.setLayoutParams(pa);
+        }
+
+        @Override
+        public void onPageSelected(int position) {
+
+        }
+
+        @Override
+        public void onPageScrollStateChanged(int state) {
+
+        }
+    }
+
+    class TestAdapter extends BaseAdapter {
+        @Override
+        public int getCount() {
+            return 0;
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return null;
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return 0;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            return null;
         }
     }
 }
