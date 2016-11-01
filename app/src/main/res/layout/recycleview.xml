@@ -6,7 +6,7 @@
     <RelativeLayout
         android:id="@+id/recycleview_rela"
         android:layout_width="match_parent"
-        
+        android:visibility="gone"
         android:layout_height="180dp">
 
         <android.support.v4.view.ViewPager

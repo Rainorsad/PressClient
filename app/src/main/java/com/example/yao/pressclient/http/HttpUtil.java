@@ -2,7 +2,6 @@ package com.example.yao.pressclient.http;
 
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 
 import com.example.yao.pressclient.url.UelBack;
 import com.google.gson.Gson;
@@ -23,15 +22,19 @@ import java.lang.reflect.Type;
  * Created by Yao on 2016/10/19.
  */
 public class HttpUtil {
+    static HttpUtil httpUtil = null;
     private HttpUtils httpUtils;
     public HttpUtil(){
         super();
         httpUtils = new HttpUtils();
     }
-    static HttpUtil httpUtil = null;
     public static HttpUtil getHttpUtil(){
         if (httpUtil == null){
-            return httpUtil = new HttpUtil();
+            synchronized(HttpUtil.class) {
+                if (httpUtil == null) {
+                    return httpUtil = new HttpUtil();
+                }
+            }
         }
         return httpUtil;
     }

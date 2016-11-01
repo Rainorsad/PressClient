@@ -94,54 +94,56 @@ public class StartActivity extends BaseActivity{
         final String name = ms.getUserName();
         final String password = ms.getPassWord();
 
-        if (name.length()==0 || password.length() == 0){
+        if (name != null && password!= null & name.length()>0 && password.length() > 0 ){
+            RequestParams params = new RequestParams();
+            params.addBodyParameter("ver","0000000");
+            params.addBodyParameter("uid",name);
+            params.addBodyParameter("pwd",password);
+            params.addBodyParameter("device","0");
+            httpUtils = new HttpUtils();
+            httpUtils.send(HttpRequest.HttpMethod.POST, UelBack.ip + UelBack.login, params, new RequestCallBack<String>() {
+                @Override
+                public void onSuccess(ResponseInfo<String> responseInfo) {
+                    try {
+                        JSONObject json = new JSONObject(responseInfo.result);
+                        int status = json.getInt("status");
+                        if (status == 0){
+                            JSONObject jsData = json.getJSONObject("data");
+                            String token = jsData.getString("token");
+                            UserBean userBean = new UserBean();
+                            userBean.setName(name);
+                            userBean.setPassword(password);
+                            userBean.setToken(token);
+                            ms.setPhoneInfo(Imei,token);
+                            MyApp myApp = (MyApp) StartActivity.this.getApplication();
+                            myApp.userBean = userBean;
+                            Glide.with(StartActivity.this).load(R.drawable.pikaqiu).thumbnail(0.1f).into(img);
+                            handler.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    handler.sendEmptyMessage(1);
+                                }
+                            },2000);
+                        }else {
+                            handler.sendEmptyMessage(1);
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onFailure(HttpException e, String s) {
+
+                }
+            });
+        }else {
             ms.setInfo(0);
-            Intent it = new Intent(StartActivity.this,MainActivity.class);
+            Intent it = new Intent(StartActivity.this, MainActivity.class);
             startActivity(it);
             finish();
         }
-        RequestParams params = new RequestParams();
-        params.addBodyParameter("ver","0000000");
-        params.addBodyParameter("uid",name);
-        params.addBodyParameter("pwd",password);
-        params.addBodyParameter("device","0");
-        httpUtils = new HttpUtils();
-        httpUtils.send(HttpRequest.HttpMethod.POST, UelBack.ip + UelBack.login, params, new RequestCallBack<String>() {
-            @Override
-            public void onSuccess(ResponseInfo<String> responseInfo) {
-                try {
-                    JSONObject json = new JSONObject(responseInfo.result);
-                    int status = json.getInt("status");
-                    if (status == 0){
-                        JSONObject jsData = json.getJSONObject("data");
-                        String token = jsData.getString("token");
-                        UserBean userBean = new UserBean();
-                        userBean.setName(name);
-                        userBean.setPassword(password);
-                        userBean.setToken(token);
-                        ms.setPhoneInfo(Imei,token);
-                        MyApp myApp = (MyApp) StartActivity.this.getApplication();
-                        myApp.userBean = userBean;
-                        Glide.with(StartActivity.this).load(R.drawable.pikaqiu).thumbnail(0.1f).into(img);
-                        handler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                handler.sendEmptyMessage(1);
-                            }
-                        },2000);
-                    }else {
-                        handler.sendEmptyMessage(1);
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
 
-            @Override
-            public void onFailure(HttpException e, String s) {
-
-            }
-        });
     }
 
     /**
